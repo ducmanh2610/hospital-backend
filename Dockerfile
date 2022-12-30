@@ -1,4 +1,5 @@
-FROM openjdk:11
-EXPOSE 8080
-ADD target/hospital-backend-docker.jar hospital-backend-docker.jar
-ENTRYPOINT ["java", "-jar", "hospital-backend-docker.jar"]
+FROM openjdk:11-jdk-alpine
+VOLUME /tmp
+ARG JAR_FILE
+COPY ${JAR_FILE} app.jar
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]

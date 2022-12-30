@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -38,6 +39,14 @@ public class ToolkitTypeService {
     public List<ToolkitTypeResponse> getAllToolkitList() {
         List<ToolkitType> toolkitTypes = toolkitTypeRepository.findAll();
         return toolkitTypes.stream().map(this::mapToToolkitTypeResponse).collect(Collectors.toList());
+    }
+
+    public Optional<ToolkitType> getToolkitTypeById(String toolkitTypeId) {
+        return toolkitTypeRepository.findById(toolkitTypeId);
+    }
+
+    public void deleteToolkitTypeById(String toolkitTypeId){
+        toolkitTypeRepository.deleteById(toolkitTypeId);
     }
 
     private ToolkitTypeResponse mapToToolkitTypeResponse(ToolkitType toolkitType) {

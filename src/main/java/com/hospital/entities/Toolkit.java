@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -28,7 +29,7 @@ public class Toolkit {
     private boolean status;
     @Column(name = "image_URL")
     private String imageURL;
-    @ManyToOne
-    @JoinColumn(name = "toolkit_type_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "toolkit_type_id", referencedColumnName = "id", nullable = false)
     private ToolkitType toolkitType;
 }
