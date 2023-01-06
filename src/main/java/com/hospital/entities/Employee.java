@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -28,6 +29,10 @@ public class Employee {
     private boolean status;
     @Column(name = "address")
     private String address;
+    @Column(name = "date_imported")
+    private Date dateImported;
+    @Column(name = "date_modified")
+    private Date dateModified;
     @OneToOne(mappedBy = "employee")
     private User user;
     @ManyToOne(fetch = FetchType.LAZY)

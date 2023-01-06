@@ -1,5 +1,6 @@
 package com.hospital.controllers;
 
+import com.hospital.dto.EmployeeResponse;
 import com.hospital.dto.LevelRequest;
 import com.hospital.dto.LevelResponse;
 import com.hospital.entities.Level;
@@ -38,9 +39,9 @@ public class LevelController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteById(@PathVariable String id) {
         LevelResponse lr = levelService.getLevelById(id);
-        if(lr != null) {
+        if(id != null){
             levelService.deleteLevelById(id);
-            return ResponseEntity.ok("Level ID {"+ lr.getId() + "} is deleted");
+            return ResponseEntity.status(200).body("Level ID " + lr.getId() + " is deleted");
         }
         return ResponseEntity.notFound().build();
     }
@@ -49,6 +50,7 @@ public class LevelController {
     LevelResponse lr = levelService.getLevelById(levelRequest.getId());
     if(lr != null) {
         levelService.updateLevelStatusById(levelRequest);
+        return ResponseEntity.ok("Level ID " + lr.getId() + "is updated");
     }
     return ResponseEntity.notFound().build();
     }

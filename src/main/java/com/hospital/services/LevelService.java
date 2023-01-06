@@ -28,6 +28,9 @@ public class LevelService {
     public LevelResponse getLevelById(String id) {
         Optional<Level> levelOptional = levelRepository.findById(id);
         Level level = levelOptional.orElse(null);
+        if(level == null) {
+            return null;
+        }
         return this.mapToLevelResponse(level);
     }
 
@@ -53,6 +56,7 @@ public class LevelService {
                 .id(level.getId())
                 .name(level.getName())
                 .status(level.isStatus())
+                .description(level.getDescription())
                 .dateImported(level.getDateImported())
                 .dateModified(level.getDateModified())
                 .build();
@@ -63,6 +67,7 @@ public class LevelService {
                 .id(UUID.randomUUID().toString())
                 .name(levelRequest.getName())
                 .status(levelRequest.isStatus())
+                .description(levelRequest.getDescription())
                 .dateModified(new Date())
                 .dateImported(new Date())
                 .build();

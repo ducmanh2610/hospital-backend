@@ -1,24 +1,22 @@
 package com.hospital.dto;
 
 import com.hospital.entities.Employee;
+import com.hospital.entities.Patient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-import java.util.List;
-
+import javax.persistence.Id;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-public class LevelResponse {
+public class RecordsResponse {
+    @Id
     private String id;
-    private String name;
+    private String title;
+    private Employee employee;
+    private Patient patient;
     private boolean status;
-    private String description;
-    private Date dateImported;
-    private Date dateModified;
-    private List<Employee> employeeList;
 }

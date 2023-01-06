@@ -17,6 +17,7 @@ public class LevelRequest {
     private String id;
     private String name;
     private boolean status;
+    private String description;
     private Date dateImported;
     private Date dateModified;
     private List<Employee> employeeList;

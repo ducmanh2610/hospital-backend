@@ -26,6 +26,8 @@ public class Level {
     private Date dateImported;
     @Column(name = "date_modified")
     private Date dateModified;
+    @Column(name = "description")
+    private String description;
     @OneToMany(mappedBy = "level")
     private List<Employee> employeeList;
 }
