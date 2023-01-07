@@ -28,6 +28,6 @@ public class Level {
     private Date dateModified;
     @Column(name = "description")
     private String description;
-    @OneToMany(mappedBy = "level")
+    @OneToMany(mappedBy = "level", fetch = FetchType.LAZY)
     private List<Employee> employeeList;
 }

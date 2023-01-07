@@ -1,8 +1,6 @@
 package com.hospital.controllers;
 
-import com.hospital.dto.EmployeeResponse;
 import com.hospital.dto.LevelRequest;
-import com.hospital.dto.LevelResponse;
 import com.hospital.entities.Level;
 import com.hospital.services.LevelService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,38 +17,36 @@ public class LevelController {
     @Autowired
     private LevelService levelService;
     @GetMapping("/list")
-    public ResponseEntity<List<LevelResponse>> listAll() {
-        List<LevelResponse> l = levelService.getLevelList();
-        return ResponseEntity.ok(l);
+    public ResponseEntity<List<Level>> listAll() {
+        List<Level> ll = levelService.getLevelList();
+        return ResponseEntity.ok(ll);
     }
     @GetMapping("/{id}")
-    public ResponseEntity<LevelResponse> getById(@PathVariable String id) {
-        LevelResponse lr = levelService.getLevelById(id);
-        return ResponseEntity.ok(lr);
+    public ResponseEntity<Level> getById(@PathVariable String id) {
+        Level l = levelService.getLevelById(id);
+        return ResponseEntity.ok(l);
     }
     @PostMapping("/new")
-    public ResponseEntity<LevelResponse> createNew(@RequestBody LevelRequest levelRequest) {
-        LevelResponse lr = levelService.createNewLevel(levelRequest);
+    public ResponseEntity<Level> createNew(@RequestBody LevelRequest levelRequest) {
+        Level l = levelService.createNewLevel(levelRequest);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{id}")
-                .buildAndExpand(lr.getId()).toUri();
-        return  ResponseEntity.created(location).body(lr);
+                .buildAndExpand(l.getId()).toUri();
+        return  ResponseEntity.created(location).body(l);
     }
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteById(@PathVariable String id) {
-        LevelResponse lr = levelService.getLevelById(id);
-        if(id != null){
-            levelService.deleteLevelById(id);
-            return ResponseEntity.status(200).body("Level ID " + lr.getId() + " is deleted");
+        boolean isDeleted = levelService.deleteLevelById(id);
+        if(isDeleted) {
+            return ResponseEntity.ok("Level ID: " + id + " is deleted");
         }
         return ResponseEntity.notFound().build();
     }
     @PutMapping("/update/{id}")
-    public ResponseEntity<String> updateById(@RequestBody LevelRequest levelRequest) {
-    LevelResponse lr = levelService.getLevelById(levelRequest.getId());
-    if(lr != null) {
-        levelService.updateLevelStatusById(levelRequest);
-        return ResponseEntity.ok("Level ID " + lr.getId() + "is updated");
+    public ResponseEntity<String> updateById(@RequestBody LevelRequest lr, @PathVariable String id) {
+    boolean isUpdated = levelService.updateLevelById(lr, id);
+    if(isUpdated) {
+        return ResponseEntity.ok("Level ID " + id + " is updated");
     }
     return ResponseEntity.notFound().build();
     }

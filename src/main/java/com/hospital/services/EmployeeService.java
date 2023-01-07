@@ -1,103 +1,82 @@
 package com.hospital.services;
 
 import com.hospital.dto.EmployeeRequest;
-import com.hospital.dto.EmployeeResponse;
-import com.hospital.dto.LevelRequest;
-import com.hospital.dto.LevelResponse;
 import com.hospital.entities.Employee;
 import com.hospital.entities.Level;
+import com.hospital.entities.User;
 import com.hospital.repositories.EmployeeRepository;
+import com.hospital.repositories.LevelRepository;
+import com.hospital.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class EmployeeService {
-    private final EmployeeRepository employeeRepository;
-
-    public List<EmployeeResponse> getEmployeeList() {
-        List<Employee> employees = employeeRepository.findAll();
-        return employees.stream().map(this::mapToEmployeeResponse).collect(Collectors.toList());
+    private final EmployeeRepository empRepo;
+    private final LevelRepository levelRepo;
+    private final UserRepository userRepo;
+    public List<Employee> getEmployeeList() {
+        return empRepo.findAll();
     }
 
-    public EmployeeResponse getEmployeeById(String id) {
-        Optional<Employee> employeeOptional = employeeRepository.findById(id);
-        Employee employee = employeeOptional.orElse(null);
-        if(employee == null){
-            return null;
+    public Employee getEmployeeById(String id) {
+        Optional<Employee> oe = empRepo.findById(id);
+        return oe.orElse(null);
+    }
+
+    public Employee createNewEmployee(EmployeeRequest er) {
+        Employee e = empRepo.save(this.mapToEmployeeObject(er));
+        log.info("Employee ID {" + e.getId() + "} is saved");
+        return e;
+    }
+    public boolean deleteEmployeeById(String id) {
+        Optional<Employee> ol = empRepo.findById(id);
+        Employee l = ol.orElse(null);
+        if(l == null) {
+            log.info("Employee ID {" + id + "} not found");
+            return false;
         }
-        return this.mapToEmployeeResponse(employee);
-    }
-
-    public EmployeeResponse createNewEmployee(EmployeeRequest employeeRequest) {
-        Employee employee = this.mapToEmployeeObject(employeeRequest);
-        employeeRepository.save(employee);
-        log.info("Employee ID {" + employee.getId() + "} is saved");
-        return this.mapToEmployeeResponse(employee);
-    }
-    public void deleteEmployeeById(String id) {
-        employeeRepository.deleteById(id);
+        empRepo.delete(l);
         log.info("Employee ID {" + id + "} is deleted");
+        return true;
     }
 
-    public void updateEmployeeStatusById(EmployeeRequest employeeRequest) {
-        Employee employee = this.mapToEmployeeObject(employeeRequest);
-        employeeRepository.save(employee);
-        log.info("Employee ID {" + employee.getId() +"} is updated");
+    public boolean updateEmployeeById(EmployeeRequest er, String id) {
+        Optional<Employee> oe = empRepo.findById(id);
+        Employee e = oe.orElse(null);
+        if(e == null){
+            return false;
+        }
+        empRepo.saveAndFlush(this.mapToEmployeeObject(er));
+        log.info("Employee ID {" + e.getId() +"} is updated");
+        return true;
     }
-
-    private EmployeeResponse mapToEmployeeResponse(Employee employee) {
-        LevelResponse lr = new LevelResponse();
-        lr.setId(employee.getLevel().getId());
-        lr.setName(employee.getLevel().getName());
-        lr.setStatus(employee.getLevel().isStatus());
-        lr.setDateImported(employee.getLevel().getDateImported());
-        lr.setDateModified(employee.getLevel().getDateModified());
-        lr.setDescription(employee.getLevel().getDescription());
-
-        return EmployeeResponse.builder()
-                .id(employee.getId())
-                .firstName(employee.getFirstName())
-                .lastName(employee.getLastName())
-                .email(employee.getEmail())
-                .description(employee.getDescription())
-                .status(employee.isStatus())
-                .address(employee.getAddress())
-                .user(employee.getUser())
-                .dateModified(employee.getDateModified())
-                .dateImported(employee.getDateImported())
-                .level(lr)
-                .build();
-    }
-
-    private Employee mapToEmployeeObject(EmployeeRequest employeeRequest) {
-        Level l = new Level();
-        l.setId(employeeRequest.getLevel().getId());
-        l.setName(employeeRequest.getLevel().getName());
-        l.setStatus(employeeRequest.getLevel().isStatus());
-        l.setDateImported(employeeRequest.getLevel().getDateImported());
-        l.setDateModified(employeeRequest.getLevel().getDateModified());
-        l.setDescription(employeeRequest.getLevel().getDescription());
+    
+    private Employee mapToEmployeeObject(EmployeeRequest er) {
+            Level l = Level.builder()
+                    .id(er.getLevel().getId())
+                    .name(er.getLevel().getName())
+                    .status(er.isStatus())
+                    .dateImported(er.getDateImported())
+                    .dateModified(er.getDateModified())
+                    .description(er.getDescription())
+                    .build();
 
         return Employee.builder()
                 .id(UUID.randomUUID().toString())
-                .firstName(employeeRequest.getFirstName())
-                .lastName(employeeRequest.getLastName())
-                .email(employeeRequest.getEmail())
-                .description(employeeRequest.getDescription())
-                .status(employeeRequest.isStatus())
-                .address(employeeRequest.getAddress())
-                .dateImported(employeeRequest.getDateImported())
-                .dateModified(employeeRequest.getDateModified())
-                .user(employeeRequest.getUser())
+                .firstName(er.getFirstName())
+                .lastName(er.getLastName())
+                .email(er.getEmail())
+                .description(er.getDescription())
+                .status(er.isStatus())
+                .address(er.getAddress())
+                .dateImported(new Date())
+                .dateModified(new Date())
                 .level(l)
                 .build();
     }

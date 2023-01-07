@@ -1,5 +1,6 @@
 package com.hospital.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,7 +34,8 @@ public class Employee {
     private Date dateImported;
     @Column(name = "date_modified")
     private Date dateModified;
-    @OneToOne(mappedBy = "employee")
+    @JsonIgnore
+    @OneToOne(mappedBy = "employee", fetch = FetchType.LAZY)
     private User user;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(referencedColumnName = "id", name = "level_id")
