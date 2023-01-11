@@ -25,6 +25,4 @@ public class Roles {
     private Date dateImported;
     @Column(name = "date_modified")
     private Date dateModified;
-    @OneToOne(mappedBy = "roles", fetch = FetchType.LAZY)
-    private User user;
 }

@@ -4,9 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,6 +25,8 @@ public class User {
     private String username;
     @Column(name = "password")
     private String password;
+    @Column(name = "email")
+    private String email;
     @Column(name = "status")
     private boolean status;
     @Column(name = "date_imported")
@@ -30,8 +36,8 @@ public class User {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(referencedColumnName = "id", name = "employee_id")
     private Employee employee;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(referencedColumnName = "id", name = "roles_id")
-    private Roles roles;
+    @Column(name = "roles")
+    private String roles;
+    @Column(name = "enabled")
+    private boolean enabled;
 }
