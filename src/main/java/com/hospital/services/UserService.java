@@ -15,7 +15,7 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-public class UserService  {
+public class UserService {
     private final UserRepository userRepository;
 
     public List<User> getUserList() {
@@ -26,8 +26,11 @@ public class UserService  {
         Optional<User> userOptional = userRepository.findById(id);
         return userOptional.orElse(null);
     }
+
     public User findUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username);
+        return userRepository.findByUsername(username).orElseThrow(() -> {
+            throw new UsernameNotFoundException("Username " + username + " not found");
+        });
     }
 
     public User createNewUser(UserRequest ur) {
@@ -36,6 +39,7 @@ public class UserService  {
         log.info("User ID {" + u.getId() + "} is saved");
         return u;
     }
+
     public void deleteUserById(String id) {
         userRepository.deleteById(id);
         log.info("User ID {" + id + "} is deleted");
@@ -44,8 +48,9 @@ public class UserService  {
     public void updateUserStatusById(UserRequest ur) {
         User u = this.mapToUserObject(ur);
         userRepository.save(u);
-        log.info("User ID {" + u.getId() +"} is updated");
+        log.info("User ID {" + u.getId() + "} is updated");
     }
+
     private User mapToUserObject(UserRequest ur) {
         return User.builder()
                 .id(ur.getId())

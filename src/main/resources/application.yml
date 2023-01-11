@@ -18,3 +18,4 @@ spring:
     show-sql: true
 jwt:
   secret: manhdz2610
+  jwtExpirationMs: 86400000

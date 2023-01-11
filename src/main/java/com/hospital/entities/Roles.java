@@ -1,28 +1,20 @@
 package com.hospital.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
-@Entity(name = "Roles")
+@Entity
 @Table(name = "tblRoles")
 public class Roles {
     @Id
-    private String id;
-    @Column(name = "name")
-    private String name;
-    @Column(name = "status")
-    private boolean status;
-    @Column(name = "date_imported", updatable = false)
-    private Date dateImported;
-    @Column(name = "date_modified")
-    private Date dateModified;
+    private String id = UUID.randomUUID().toString();
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private ERole name;
 }

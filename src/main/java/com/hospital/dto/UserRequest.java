@@ -12,9 +12,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -39,7 +37,7 @@ public class UserRequest {
     private boolean status;
     private Date dateImported;
     private Date dateModified;
-    private String roles;
+    private Set<Roles> roles = new HashSet<>();
     private Employee employee;
 
 }

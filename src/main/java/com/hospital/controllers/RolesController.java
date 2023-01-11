@@ -19,8 +19,8 @@ public class RolesController {
     private RolesService rolesService;
 
     @GetMapping("/list")
-    public ResponseEntity<List<RolesResponse>> getRolesList(){
-        List<RolesResponse> roles = rolesService.getRolesList();
+    public ResponseEntity<List<Roles>> getRolesList(){
+        List<Roles> roles = rolesService.getRolesList();
         return ResponseEntity.ok(roles);
     }
 
@@ -37,17 +37,6 @@ public class RolesController {
     public ResponseEntity<String> deleteRolesById(@PathVariable String id){
         rolesService.deleteRolesById(id);
         return ResponseEntity.status(200).body("Roles ID {" + id + "} has been deleted");
-    }
-
-    @PutMapping("/update/{id}")
-    public ResponseEntity<String> updateRolesStatusById(@RequestBody RolesRequest rolesRequest) {
-       Roles r = rolesService.findRolesById(rolesRequest.getId());
-        if(r != null){
-            r.setStatus(rolesRequest.isStatus());
-            rolesService.updateRolesById(r);
-            return ResponseEntity.ok().body("Roles ID {" + rolesRequest.getId() + "has been updated");
-        }
-        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/{id}")
