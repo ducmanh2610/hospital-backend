@@ -1,61 +1,95 @@
 package com.hospital.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 import java.util.*;
 
-@AllArgsConstructor
+@Table(name = "tblUser")
 @NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Builder
-@Entity(name = "User")
-@Table(name = "tblUser", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "username"),
-        @UniqueConstraint(columnNames = "email")
-})
-public class User {
+@Entity
+public class User implements UserDetails {
     @Id
     private String id;
     @Column(name = "username")
-    @Size(max = 20)
     private String username;
     @Column(name = "password")
-    @Size(max = 50)
     private String password;
     @Column(name = "email")
-    @NotBlank
-    @Size(max = 50)
     private String email;
-    @Column(name = "status")
-    private boolean status;
-    @Column(name = "date_imported")
+    @Column(name = "date_imported",  updatable = false)
     private Date dateImported;
     @Column(name = "date_modified")
     private Date dateModified;
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(referencedColumnName = "id", name = "employee_id")
-    private Employee employee;
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "tblUserRole",
-                joinColumns = @JoinColumn(name = "user_id"),
-                inverseJoinColumns = @JoinColumn(name = "role_id")
+    @ManyToMany
+    @JoinTable(
+            name = "tblUserRole",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    private Set<Roles> roles = new HashSet<>();
-    @Column(name = "enabled")
-    private boolean enabled;
+    private Set<Role> roles = new HashSet<>();
 
-    public User(String username, String email, String password, Set<Roles> roles){
-        this.id = UUID.randomUUID().toString();
-        this.username = username;
-        this.email = email;
+    public User(String id, String username, String password){
+        this.id = id;
         this.password = password;
+        this.username = username;
+    }
+
+    public void addRole(Role role){
+        this.roles.add(role);
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
+    
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        for (Role role : roles) {
+            authorities.add(new SimpleGrantedAuthority(role.getName()));
+        }
+        return authorities;
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
 }

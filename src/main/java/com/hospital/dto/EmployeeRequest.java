@@ -1,5 +1,6 @@
 package com.hospital.dto;
 
+import com.hospital.entities.Department;
 import com.hospital.entities.Level;
 import com.hospital.entities.User;
 import lombok.AllArgsConstructor;
@@ -19,7 +20,6 @@ public class EmployeeRequest {
     private String id;
     private String firstName;
     private String lastName;
-    private String email;
     private String description;
     private boolean status;
     private String address;
@@ -27,4 +27,5 @@ public class EmployeeRequest {
     private Date dateImported;
     private User user;
     private Level level;
+    private Department department;
 }

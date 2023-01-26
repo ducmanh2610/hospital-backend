@@ -1,15 +1,12 @@
 package com.hospital.dto;
 
 import com.hospital.entities.Employee;
-import com.hospital.entities.Roles;
-import com.hospital.validations.PasswordMatches;
-import com.hospital.validations.ValidEmail;
+import com.hospital.entities.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.*;
@@ -18,7 +15,6 @@ import java.util.*;
 @NoArgsConstructor
 @Data
 @Builder
-@PasswordMatches
 public class UserRequest {
     private String id;
     @NotNull
@@ -32,12 +28,9 @@ public class UserRequest {
     private String matchingPassword;
     @NotNull
     @NotEmpty
-    @ValidEmail
     private String email;
     private boolean status;
     private Date dateImported;
     private Date dateModified;
-    private Set<Roles> roles = new HashSet<>();
-    private Employee employee;
-
+    private Set<Role> roles = new HashSet<>();
 }

@@ -11,8 +11,12 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 
+import javax.annotation.security.RolesAllowed;
+
 @RestController
 @RequestMapping("/api/v1/user")
+@RolesAllowed("ROLE_ADMIN")
+@CrossOrigin("http://localhost:4200")
 public class UserController {
     @Autowired
     private UserService userService;

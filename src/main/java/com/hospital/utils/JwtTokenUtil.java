@@ -1,58 +1,59 @@
 package com.hospital.utils;
 
-import com.hospital.entities.UserDetailsImpl;
+import com.hospital.entities.User;
 import io.jsonwebtoken.*;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import java.io.Serializable;
 import java.util.Date;
 @Component
-public class JwtTokenUtil implements Serializable {
-    private static final long serialVersionUID = -2550185165626007488L;
+public class JwtTokenUtil {
+    private static final long EXPIRE_DURATION = 24 * 60 * 60 * 1000; // 24 hour
+    private static final Logger LOGGER = LoggerFactory.getLogger(JwtTokenUtil.class);
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtTokenUtil.class);
     @Value("${jwt.secret}")
-    private String jwtSecret;
+    private String SECRET_KEY;
 
-    @Value("${jwt.jwtExpirationMs}")
-    private int jwtExpirationMs;
-    public String generateJwtToken(Authentication authentication) {
-
-        UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-
+    public String generateAccessToken(User user) {
         return Jwts.builder()
-                .setSubject((userPrincipal.getUsername()))
+                .setSubject(String.format("%s,%s", user.getId(), user.getUsername()))
+                .setIssuer("Manh Nguyen")
+                .claim("roles", user.getRoles().toString())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
-                .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRE_DURATION))
+                .signWith(SignatureAlgorithm.HS512, SECRET_KEY)
                 .compact();
     }
 
-    public String getUserNameFromJwtToken(String token) {
-        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
-    }
-
-    public boolean validateJwtToken(String authToken) {
+    public boolean validateAccessToken(String token) {
         try {
-            Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
+            Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token);
             return true;
-        } catch (SignatureException e) {
-            logger.error("Invalid JWT signature: {}", e.getMessage());
-        } catch (MalformedJwtException e) {
-            logger.error("Invalid JWT token: {}", e.getMessage());
-        } catch (ExpiredJwtException e) {
-            logger.error("JWT token is expired: {}", e.getMessage());
-        } catch (UnsupportedJwtException e) {
-            logger.error("JWT token is unsupported: {}", e.getMessage());
-        } catch (IllegalArgumentException e) {
-            logger.error("JWT claims string is empty: {}", e.getMessage());
+        } catch (ExpiredJwtException ex) {
+            LOGGER.error("JWT expired", ex.getMessage());
+        } catch (IllegalArgumentException ex) {
+            LOGGER.error("Token is null, empty or only whitespace", ex.getMessage());
+        } catch (MalformedJwtException ex) {
+            LOGGER.error("JWT is invalid", ex);
+        } catch (UnsupportedJwtException ex) {
+            LOGGER.error("JWT is not supported", ex);
+        } catch (SignatureException ex) {
+            LOGGER.error("Signature validation failed");
         }
 
         return false;
+    }
+
+    public String getSubject(String token) {
+        return parseClaims(token).getSubject();
+    }
+
+    public Claims parseClaims(String token) {
+        return Jwts.parser()
+                .setSigningKey(SECRET_KEY)
+                .parseClaimsJws(token)
+                .getBody();
     }
 }

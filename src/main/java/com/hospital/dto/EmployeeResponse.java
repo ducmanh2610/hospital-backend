@@ -26,5 +26,5 @@ public class EmployeeResponse {
     private Date dateImported;
     private Date dateModified;
     private User user;
-    private LevelResponse level;
+    private Level level;
 }

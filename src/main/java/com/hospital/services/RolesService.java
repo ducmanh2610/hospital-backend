@@ -1,20 +1,15 @@
 package com.hospital.services;
 
 import com.hospital.dto.RolesRequest;
-import com.hospital.dto.RolesResponse;
-import com.hospital.entities.ERole;
-import com.hospital.entities.Roles;
+import com.hospital.entities.Role;
 import com.hospital.repositories.RolesRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,17 +17,17 @@ import java.util.stream.Collectors;
 public class RolesService {
     private final RolesRepository rolesRepository;
 
-    public Roles createNewRoles(RolesRequest rolesRequest) {
-        Roles roles = Roles.builder()
+    public Role createNewRoles(RolesRequest rolesRequest) {
+        Role roles = Role.builder()
                 .id(UUID.randomUUID().toString())
-                .name(ERole.ROLE_USER)
+                .name(rolesRequest.getName())
                 .build();
-        Roles r = rolesRepository.save(roles);
+        Role r = rolesRepository.save(roles);
         log.info("Roles ID {" + r.getId() + "} is Created");
         return r;
     }
 
-    public List<Roles> getRolesList() {
+    public List<Role> getRolesList() {
         return rolesRepository.findAll();
     }
 
@@ -40,8 +35,8 @@ public class RolesService {
         rolesRepository.deleteById(id);
     }
 
-    public Roles findRolesById(String id) {
-        Optional<Roles> optionalRoles = rolesRepository.findById(id);
+    public Role findRolesById(String id) {
+        Optional<Role> optionalRoles = rolesRepository.findById(id);
         return optionalRoles.orElse(null);
     }
 }

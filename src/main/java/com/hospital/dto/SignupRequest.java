@@ -1,6 +1,5 @@
 package com.hospital.dto;
 
-import com.hospital.entities.Roles;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,14 +14,16 @@ import java.util.Set;
 @NoArgsConstructor
 @Data
 public class SignupRequest {
-    @Size(max = 20)
+    @Size(min = 6, max = 20, message = "username is invalid")
     private String username;
     @NotBlank
     @Size(max = 50)
-    @Email
+    @Email(message = "email is invalid")
     private String email;
-    @Size(max = 50)
+    private String firstName;
+    private String lastName;
+    @Size(min = 6, max = 50, message = "Password length is between 6 and 50")
     private String password;
-
     private Set<String> roles = new HashSet<>();
+
 }

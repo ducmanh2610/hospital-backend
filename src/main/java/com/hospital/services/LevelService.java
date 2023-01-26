@@ -1,6 +1,7 @@
 package com.hospital.services;
 
 import com.hospital.dto.LevelRequest;
+import com.hospital.dto.MessageResponse;
 import com.hospital.entities.Level;
 import com.hospital.repositories.LevelRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,10 +29,14 @@ public class LevelService {
         return ol.orElse(null);
     }
 
-    public Level createNewLevel(LevelRequest lr) {
+    public MessageResponse createNewLevel(LevelRequest lr) {
+        Level level = levelRepository.findByName(lr.getName()).orElse(null);
+        if(level != null){
+            return new MessageResponse("Level name " + lr.getName() + " already exist", 302);
+        }
         Level l = levelRepository.save(this.mapToNewObject(lr));
         log.info("Level ID {" + l.getId() + "} is saved");
-        return l;
+        return new MessageResponse("Level ID {" + l.getId() + "} is created", 201);
     }
     public boolean deleteLevelById(String id) {
         Optional<Level> ol = levelRepository.findById(id);
@@ -45,13 +50,15 @@ public class LevelService {
         return true;
     }
 
-    public boolean updateLevelById(LevelRequest lr, String id) {
-        Optional<Level> ol = levelRepository.findById(id);
+    public boolean updateLevelById(LevelRequest lr) {
+        Optional<Level> ol = levelRepository.findById(lr.getId());
         Level l = ol.orElse(null);
         if(l == null){
             return false;
         }
-        levelRepository.saveAndFlush(this.mapToNewObject(lr));
+        Level updateLevel = this.mapToNewObject(lr);
+        updateLevel.setId(l.getId());
+        levelRepository.save(updateLevel);
         log.info("Level ID {" + l.getId() +"} is updated");
         return true;
     }
@@ -61,9 +68,9 @@ public class LevelService {
                 .id(UUID.randomUUID().toString())
                 .name(lr.getName())
                 .status(lr.isStatus())
+                .description(lr.getDescription())
                 .dateImported(new Date())
                 .dateModified(new Date())
-                .employeeList(lr.getEmployeeList() == null ? null : lr.getEmployeeList())
                 .build();
     }
 }

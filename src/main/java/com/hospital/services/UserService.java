@@ -3,8 +3,8 @@ package com.hospital.services;
 import com.hospital.dto.UserRequest;
 import com.hospital.entities.User;
 import com.hospital.repositories.UserRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -12,11 +12,11 @@ import javax.transaction.Transactional;
 import java.util.*;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 @Transactional
 public class UserService {
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     public List<User> getUserList() {
         return userRepository.findAll();
@@ -56,11 +56,10 @@ public class UserService {
                 .id(ur.getId())
                 .username(ur.getUsername())
                 .password(ur.getPassword())
-                .status(ur.isStatus())
                 .email(ur.getEmail())
                 .dateImported(ur.getDateImported())
                 .dateModified(ur.getDateModified())
-                .roles(ur.getRoles())
+//                .roles(ur.getRoles())
                 .build();
     }
 }
