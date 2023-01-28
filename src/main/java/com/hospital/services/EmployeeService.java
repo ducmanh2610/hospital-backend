@@ -4,9 +4,6 @@ import com.hospital.dto.EmployeeRequest;
 import com.hospital.entities.Employee;
 import com.hospital.entities.Level;
 import com.hospital.repositories.EmployeeRepository;
-import com.hospital.repositories.LevelRepository;
-import com.hospital.repositories.UserRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -57,14 +54,6 @@ public class EmployeeService {
     }
     
     private Employee mapToEmployeeObject(EmployeeRequest er) {
-            Level l = Level.builder()
-                    .id(er.getLevel().getId())
-                    .name(er.getLevel().getName())
-                    .status(er.isStatus())
-                    .dateImported(er.getDateImported())
-                    .dateModified(er.getDateModified())
-                    .description(er.getDescription())
-                    .build();
 
         return Employee.builder()
                 .id(UUID.randomUUID().toString())
@@ -73,9 +62,9 @@ public class EmployeeService {
                 .description(er.getDescription())
                 .status(er.isStatus())
                 .address(er.getAddress())
+                .email(er.getEmail())
                 .dateImported(new Date())
                 .dateModified(new Date())
-                .level(l)
                 .build();
     }
 }

@@ -1,6 +1,7 @@
 package com.hospital.controllers;
 
 import com.hospital.dto.LevelRequest;
+import com.hospital.dto.MessageResponse;
 import com.hospital.entities.Level;
 import com.hospital.services.LevelService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,12 +35,9 @@ public class LevelController {
         return ResponseEntity.ok(l);
     }
     @PostMapping("/new")
-    public ResponseEntity<Level> createNew(@RequestBody LevelRequest levelRequest) {
-        Level l = levelService.createNewLevel(levelRequest);
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest().path("/{id}")
-                .buildAndExpand(l.getId()).toUri();
-        return ResponseEntity.created(location).body(l);
+    public ResponseEntity<String> createNew(@RequestBody LevelRequest levelRequest) {
+        MessageResponse msg = levelService.createNewLevel(levelRequest);
+        return ResponseEntity.status(msg.getStatus()).body(msg.getMessage());
     }
 
     @DeleteMapping("/delete/{id}")

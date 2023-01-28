@@ -1,7 +1,5 @@
 package com.hospital.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,7 +14,6 @@ import java.util.Date;
 @Builder
 @Entity
 @Table(name = "tblEmployee")
-@JsonIgnoreProperties({"hibernateLazyInitializer"})
 public class Employee {
     @Id
     @Column(name = "id")
@@ -31,6 +28,8 @@ public class Employee {
     private boolean status;
     @Column(name = "address")
     private String address;
+    @Column(name = "email")
+    private String email;
     @Column(name = "date_imported")
     private Date dateImported;
     @Column(name = "date_modified")
@@ -43,4 +42,7 @@ public class Employee {
     @JoinColumn(name = "department_id")
     private Department department;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 }

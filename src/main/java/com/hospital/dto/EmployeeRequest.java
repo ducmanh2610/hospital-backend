@@ -21,6 +21,7 @@ public class EmployeeRequest {
     private String firstName;
     private String lastName;
     private String description;
+    private String email;
     private boolean status;
     private String address;
     private Date dateModified;

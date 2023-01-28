@@ -21,8 +21,6 @@ public class User implements UserDetails {
     private String username;
     @Column(name = "password")
     private String password;
-    @Column(name = "email")
-    private String email;
     @Column(name = "date_imported",  updatable = false)
     private Date dateImported;
     @Column(name = "date_modified")
@@ -34,6 +32,9 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles = new HashSet<>();
+
+    @OneToOne
+    private Employee employee;
 
     public User(String id, String username, String password){
         this.id = id;
