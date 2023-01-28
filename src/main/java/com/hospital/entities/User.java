@@ -1,43 +1,96 @@
 package com.hospital.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
-@AllArgsConstructor
+@Table(name = "tblUser")
 @NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Builder
-@Entity(name = "User")
-@Table(name = "tblUser")
-public class User {
+@Entity
+public class User implements UserDetails {
     @Id
     private String id;
     @Column(name = "username")
     private String username;
     @Column(name = "password")
     private String password;
-    @Column(name = "email")
-    private String email;
-    @Column(name = "status")
-    private boolean status;
-    @Column(name = "date_imported")
+    @Column(name = "date_imported",  updatable = false)
     private Date dateImported;
     @Column(name = "date_modified")
     private Date dateModified;
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(referencedColumnName = "id", name = "employee_id")
+    @ManyToMany
+    @JoinTable(
+            name = "tblUserRole",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
+
+    @OneToOne
     private Employee employee;
-    @Column(name = "roles")
-    private String roles;
-    @Column(name = "enabled")
-    private boolean enabled;
+
+    public User(String id, String username, String password){
+        this.id = id;
+        this.password = password;
+        this.username = username;
+    }
+
+    public void addRole(Role role){
+        this.roles.add(role);
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+    
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        for (Role role : roles) {
+            authorities.add(new SimpleGrantedAuthority(role.getName()));
+        }
+        return authorities;
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
 }

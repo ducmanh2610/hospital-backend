@@ -1,27 +1,23 @@
 package com.hospital.dto;
 
 import com.hospital.entities.Employee;
-import com.hospital.entities.Roles;
-import com.hospital.validations.PasswordMatches;
-import com.hospital.validations.ValidEmail;
+import com.hospital.entities.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Id;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-@PasswordMatches
 public class UserRequest {
+    @Id
     private String id;
     @NotNull
     @NotEmpty
@@ -31,15 +27,25 @@ public class UserRequest {
     private String password;
     @NotNull
     @NotEmpty
-    private String matchingPassword;
+    private String firstName;
     @NotNull
     @NotEmpty
-    @ValidEmail
+    private String lastName;
+    @NotNull
+    @NotEmpty
     private String email;
     private boolean status;
-    private Date dateImported;
-    private Date dateModified;
-    private String roles;
     private Employee employee;
+    private Set<Role> roles = new HashSet<>();
+    public void addRole(Role role) {
+        this.roles.add(role);
+    }
 
+    public void setEmployee(Employee emp){
+        this.employee = emp;
+    }
+
+    public Set<Role> getRoles() {
+        return this.roles;
+    }
 }

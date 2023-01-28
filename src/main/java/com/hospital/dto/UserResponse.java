@@ -1,13 +1,12 @@
 package com.hospital.dto;
 
 import com.hospital.entities.Employee;
-import com.hospital.entities.Roles;
+import com.hospital.entities.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
 import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,5 +21,5 @@ public class UserResponse {
     private Date dateModified;
     private Employee employee;
 
-    private Roles roles;
+    private Role roles;
 }

@@ -1,84 +1,54 @@
 package com.hospital.controllers;
 
-import com.hospital.dto.GenericResponse;
-import com.hospital.dto.JwtRequest;
-import com.hospital.dto.JwtResponse;
-import com.hospital.dto.UserRequest;
+import com.hospital.dto.*;
 import com.hospital.entities.User;
-import com.hospital.entities.VerificationToken;
-import com.hospital.events.OnRegistrationCompleteEvent;
-import com.hospital.exceptions.InvalidOldPasswordException;
-import com.hospital.exceptions.UserAlreadyExistException;
-import com.hospital.services.CustomUserDetailsService;
-import com.hospital.services.UserService;
 import com.hospital.utils.JwtTokenUtil;
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.MessageSource;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.MailSender;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.net.URI;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-@Slf4j
+@RequiredArgsConstructor
+@Transactional
 public class AuthController {
     @Autowired
-    private UserService userService;
+    AuthenticationManager authManager;
     @Autowired
-    private CustomUserDetailsService detailsService;
-    @Autowired
-    private AuthenticationManager authenticationManager;
-    @Autowired
-    private JwtTokenUtil jwtTokenUtil;
-    @GetMapping("/login?success={success}")
-    public ResponseEntity<String> loginStatus(@PathVariable boolean success) {
-        if(success){
-            return ResponseEntity.badRequest().body("Login Failed, Check your information again");
-        }
-        return ResponseEntity.ok().body("Successfully login");
-    }
-    @RequestMapping(value = "/", method = RequestMethod.POST)
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
+    JwtTokenUtil jwtUtil;
+//    @PostMapping("/register")
+//    public ResponseEntity<String> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+//            MessageResponse message = authService.register(signUpRequest);
+//
+//            return ResponseEntity.status(message.getStatus()).body(message.getMessage());
+//    }
 
-        authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
-        final UserDetails userDetails = detailsService
-                .loadUserByUsername(authenticationRequest.getUsername());
-
-        log.info(userDetails.toString());
-
-        final String token = jwtTokenUtil.generateToken(userDetails);
-
-        return ResponseEntity.ok(new JwtResponse(token));
-    }
-
-    private void authenticate(String username, String password) throws Exception {
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody @Valid AuthRequest request) {
         try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-        } catch (DisabledException e) {
-            throw new Exception("USER_DISABLED", e);
-        } catch (BadCredentialsException e) {
-            throw new Exception("INVALID_CREDENTIALS", e);
+            Authentication authentication = authManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(), request.getPassword())
+            );
+
+            User user = (User) authentication.getPrincipal();
+            String accessToken = jwtUtil.generateAccessToken(user);
+            AuthResponse response = new AuthResponse(user.getUsername(), accessToken);
+
+            return ResponseEntity.ok().body(response);
+
+        } catch (BadCredentialsException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
-
 }

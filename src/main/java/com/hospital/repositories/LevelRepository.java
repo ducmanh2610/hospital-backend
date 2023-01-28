@@ -9,4 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface LevelRepository extends JpaRepository<Level, String> {
+    Optional<Level> findByName(String name);
 }

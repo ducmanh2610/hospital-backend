@@ -1,5 +1,7 @@
 package com.hospital.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -7,14 +9,14 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-@Entity(name = "Level")
+@Entity
 @Table(name = "tblLevel")
+//@JsonIgnoreProperties({"hibernateLazyInitializer"})
 public class Level {
     @Id
     private String id;
@@ -28,6 +30,4 @@ public class Level {
     private Date dateModified;
     @Column(name = "description")
     private String description;
-    @OneToMany(mappedBy = "level", fetch = FetchType.LAZY)
-    private List<Employee> employeeList;
 }

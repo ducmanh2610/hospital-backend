@@ -1,5 +1,6 @@
 server:
   port: 8081
+#debug: true
 spring:
   datasource:
     driver-class-name: oracle.jdbc.driver.OracleDriver
@@ -7,6 +8,9 @@ spring:
     username: system
     password: 1234$
   jpa:
+#    properties:
+#      hibernate:
+#        format_sql: true
     hibernate:
       ddl-auto: none
       naming:
@@ -17,4 +21,5 @@ spring:
         current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
     show-sql: true
 jwt:
-  secret: manhdz2610
+  expirationMs: 864000000
+  secret: 4E635266556A576E5A7234753778214125442A472D4B6150645367566B59703273357638792F423F4528482B4D6251655468576D5A7134743677397A24432646

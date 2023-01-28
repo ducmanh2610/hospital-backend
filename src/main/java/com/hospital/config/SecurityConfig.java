@@ -1,91 +1,80 @@
 package com.hospital.config;
 
-import com.hospital.advices.CustomAuthenticationFailureHandler;
-import com.hospital.advices.UrlAuthenticationSuccessHandler;
-import com.hospital.providers.CustomAuthenticationProvider;
-import com.hospital.services.CustomUserDetailsService;
-import io.jsonwebtoken.Jwt;
+import com.hospital.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.util.StringUtils;
 
-import java.util.Collection;
+import javax.servlet.http.HttpServletResponse;
 
 @Configuration
-@ComponentScan(basePackages = {"com.hospital.config"})
 @EnableWebSecurity
-public class SecurityConfig {
-    @Autowired
-    private CustomUserDetailsService userService;
-    @Autowired
-    private CustomAuthenticationProvider authProvider;
-    @Autowired
-    private JwtRequestFilter jwtRequestFilter;
-    @Autowired
-    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+@EnableGlobalMethodSecurity( prePostEnabled = false, securedEnabled = false, jsr250Enabled = true)
+public class SecurityConfig  {
+    @Autowired private UserRepository userRepo;
+    @Autowired private JwtTokenFilter jwtTokenFilter;
+    String[] AUTH_WHITELIST = {
+            // -- swagger ui
+            "/v2/api-docs",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui.html",
+            "/webjars/**"
+    };
+
     @Bean
-    public AuthenticationManager authManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder authenticationManagerBuilder =
-                http.getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.authenticationProvider(authProvider);
-        return authenticationManagerBuilder.build();
+    public UserDetailsService userDetailsService() {
+        return username -> userRepo.findByUsername(username)
+                .orElseThrow(
+                        () -> new UsernameNotFoundException("User " + username + " not found"));
     }
 
     @Bean
-    public PasswordEncoder encoder() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public DaoAuthenticationProvider authProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userService);
-        authProvider.setPasswordEncoder(encoder());
-        return authProvider;
-    }
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf()
-                .disable()
-                .authorizeRequests()
-                .antMatchers("/authenticate")
-                .permitAll()
-                .anyRequest()
-                .authenticated()
-                .and()
-                // make sure we use stateless session; session won't be used to
-                // store user's state.
-                .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .logout()
-                .logoutUrl("/perform_logout")
-                .deleteCookies("JSESSIONID");
-        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
-        return http.build();
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
     }
 
     @Bean
-    public AuthenticationSuccessHandler loginSuccessHandler() {
-        return new UrlAuthenticationSuccessHandler();
-    }
-    @Bean
-    public AuthenticationFailureHandler authenticationFailureHandler() {
-        return new CustomAuthenticationFailureHandler();
+    public SecurityFilterChain configure(HttpSecurity http) throws Exception {
+        http.csrf().disable();
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+        http.authorizeRequests()
+                .antMatchers("/api/v1/auth/login", "/docs/**").permitAll()
+                .antMatchers(AUTH_WHITELIST).permitAll()
+                .anyRequest().authenticated().and().httpBasic();
+        http.cors();
+        http.exceptionHandling()
+                .authenticationEntryPoint(
+                        (request, response, ex) -> {
+                            response.sendError(
+                                    HttpServletResponse.SC_UNAUTHORIZED,
+                                    ex.getMessage()
+                            );
+                        }
+                );
+
+        http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
     }
 }

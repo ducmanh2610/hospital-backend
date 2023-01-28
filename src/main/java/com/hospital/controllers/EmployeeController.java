@@ -1,8 +1,6 @@
 package com.hospital.controllers;
 
 import com.hospital.dto.EmployeeRequest;
-import com.hospital.dto.EmployeeRequest;
-import com.hospital.entities.Employee;
 import com.hospital.entities.Employee;
 import com.hospital.services.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +11,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 
+import javax.annotation.security.RolesAllowed;
+
+@RolesAllowed("ROLE_ADMIN")
 @RestController
 @RequestMapping("/api/v1/employee")
 public class EmployeeController {

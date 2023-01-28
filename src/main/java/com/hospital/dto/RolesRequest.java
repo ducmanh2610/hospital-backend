@@ -17,6 +17,4 @@ public class RolesRequest {
     @Id
     private String id;
     private String name;
-    private boolean status;
-    private Date dateImported;
 }
