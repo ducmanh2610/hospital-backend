@@ -25,6 +25,10 @@ public class User implements UserDetails {
     private Date dateImported;
     @Column(name = "date_modified")
     private Date dateModified;
+    @Column(name = "verification_code", length = 64)
+    private String verificationCode;
+
+    private boolean status;
     @ManyToMany
     @JoinTable(
             name = "tblUserRole",
@@ -90,7 +94,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.isStatus();
     }
 
 }

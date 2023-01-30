@@ -59,7 +59,7 @@ public class SecurityConfig  {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.authorizeRequests()
-                .antMatchers("/api/v1/auth/login", "/docs/**").permitAll()
+                .antMatchers("/api/v1/auth/**").permitAll()
                 .antMatchers(AUTH_WHITELIST).permitAll()
                 .anyRequest().authenticated().and().httpBasic();
         http.cors();

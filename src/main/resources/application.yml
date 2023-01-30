@@ -20,6 +20,17 @@ spring:
         dialect: org.hibernate.dialect.Oracle12cDialect
         current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
     show-sql: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: manh.user1@gmail.com
+    password: sodcanairvbqeglw
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 jwt:
   expirationMs: 864000000
   secret: 4E635266556A576E5A7234753778214125442A472D4B6150645367566B59703273357638792F423F4528482B4D6251655468576D5A7134743677397A24432646
